@@ -11,7 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Data\Migrations\" />
     <Folder Include="Models\DTO\" />
+    <Folder Include="Utility\" />
   </ItemGroup>
 
 

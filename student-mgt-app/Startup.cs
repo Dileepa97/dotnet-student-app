@@ -7,8 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using student_mgt_app.Data;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -33,6 +35,16 @@ namespace student_mgt_app
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Student App API", Version = "v1" });
             });
+
+            // Configuration settings
+            IConfiguration configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
+
+            //Migration runner
+            MigrationRunner migrationRunner = new MigrationRunner(configuration);
+            migrationRunner.RunMigrations();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
