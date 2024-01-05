@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace student_mgt_app.Models.Domain
+namespace student_mgt_app.Models.DTO
 {
-    public class ClassRoom
+    public class ClassRoomDto
     {
         public Guid Id { get; set; }
 

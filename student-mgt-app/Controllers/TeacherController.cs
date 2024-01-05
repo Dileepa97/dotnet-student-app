@@ -23,7 +23,7 @@ namespace student_mgt_app.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] AddTeacherRequestDto requestDto)
+        public async Task<IActionResult> Create([FromBody] TeacherAddRequestDto requestDto)
         {
             var teacher = mapper.Map<Teacher>(requestDto);
 
@@ -65,7 +65,7 @@ namespace student_mgt_app.Controllers
 
         [HttpPut]
         [Route("{id:Guid}")]
-        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateTeacherRequestDto requestDto)
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] TeacherUpdateRequestDto requestDto)
         {
             var teacherExist = await teacherDbHelper.GetByIdAsync(id);
 

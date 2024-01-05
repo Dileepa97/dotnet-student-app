@@ -8,11 +8,17 @@ namespace student_mgt_app.Utility
     {
         public AutoMapperProfiles() 
         {
-            CreateMap<AddTeacherRequestDto, Teacher>().ReverseMap();
+            CreateMap<TeacherAddRequestDto, Teacher>().ReverseMap();
 
             CreateMap<Teacher, TeacherDto>().ReverseMap();
 
-            CreateMap<UpdateTeacherRequestDto, Teacher>().ReverseMap();
+            CreateMap<TeacherUpdateRequestDto, Teacher>().ReverseMap();
+
+            CreateMap<ClassRoomAddRequestDto, ClassRoom>().ReverseMap();
+
+            CreateMap<ClassRoom, ClassRoomDto>().ReverseMap();
+
+            CreateMap<ClassRoomUpdateRequestDto, ClassRoom>().ReverseMap();
         }
     }
 }
