@@ -14,12 +14,14 @@ namespace student_mgt_app.Controllers
     public class TeacherController : ControllerBase
     {
         private readonly ITeacherDbHelper teacherDbHelper;
+        private readonly IAllocatedSubjectDbHelper allocatedSubjectDbHelper;
         private readonly IMapper mapper;
 
-        public TeacherController(ITeacherDbHelper teacherDbHelper, IMapper mapper)
+        public TeacherController(ITeacherDbHelper teacherDbHelper, IAllocatedSubjectDbHelper allocatedSubjectDbHelper, IMapper mapper)
         {
             this.teacherDbHelper = teacherDbHelper;
             this.mapper = mapper;
+            this.allocatedSubjectDbHelper = allocatedSubjectDbHelper;
         }
 
         [HttpPost]
@@ -98,6 +100,48 @@ namespace student_mgt_app.Controllers
             var delted = await teacherDbHelper.DeleteAsync(id);
 
             if (delted == null)
+            {
+                return NotFound();
+            }
+
+            return Ok();
+        }
+
+
+        [HttpGet]
+        [Route("allocated-subjects/{id:Guid}")]
+        public async Task<IActionResult> GetAllocatedSubjectsByTeacherId([FromRoute] Guid id)
+        {
+            var subjects = await allocatedSubjectDbHelper.GetByTeacherIdAsync(id);
+
+            return Ok(mapper.Map<List<AllocatedSubjectDto>>(subjects));
+        }
+
+        [HttpPost]
+        [Route("allocated-subjects")]
+        public async Task<IActionResult> AllocateSubject([FromBody] AllocatedSubjectAddRequestDto requestDto)
+        {
+            var subject = mapper.Map<AllocatedSubject>(requestDto);
+
+            subject.CreatedDateTime = DateTime.UtcNow;
+
+            var result = await allocatedSubjectDbHelper.CreateAsync(subject);
+
+            if (result == null)
+            {
+                return NoContent();
+            }
+
+            return Created("", "Success");
+        }
+
+        [HttpDelete]
+        [Route("allocated-subjects/{id:Guid}")]
+        public async Task<IActionResult> DeallocateSubject([FromRoute] Guid id)
+        {
+            var deleted = await allocatedSubjectDbHelper.DeleteAsync(id);
+
+            if (deleted == null)
             {
                 return NotFound();
             }
