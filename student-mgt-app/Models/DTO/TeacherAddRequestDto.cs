@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace student_mgt_app.Models.DTO
 {
-    public class AddTeacherRequestDto
+    public class TeacherAddRequestDto
     {
         [Required]
         [MaxLength(50, ErrorMessage = "FirstName has to be maximum of 50 chatacters")]

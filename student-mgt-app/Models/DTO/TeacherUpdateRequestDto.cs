@@ -2,7 +2,7 @@
 
 namespace student_mgt_app.Models.DTO
 {
-    public class UpdateTeacherRequestDto
+    public class TeacherUpdateRequestDto
     {
         [Required]
         [MaxLength(50, ErrorMessage = "FirstName has to be maximum of 50 chatacters")]
