@@ -50,6 +50,7 @@ namespace student_mgt_app
             services.AddScoped<ISubjectDbHelper, SubjectDbHelper>();
             services.AddScoped<IStudentDbHelper, StudentDbHelper>();
             services.AddScoped<IAllocatedSubjectDbHelper, AllocatedSubjectDbHelper>();
+            services.AddScoped<IAllocatedClassRoomDbHelper, AllocatedClassRoomDbHelper>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

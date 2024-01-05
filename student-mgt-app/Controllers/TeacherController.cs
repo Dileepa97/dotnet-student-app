@@ -15,13 +15,15 @@ namespace student_mgt_app.Controllers
     {
         private readonly ITeacherDbHelper teacherDbHelper;
         private readonly IAllocatedSubjectDbHelper allocatedSubjectDbHelper;
+        private readonly IAllocatedClassRoomDbHelper allocatedClassRoomDbHelper;
         private readonly IMapper mapper;
 
-        public TeacherController(ITeacherDbHelper teacherDbHelper, IAllocatedSubjectDbHelper allocatedSubjectDbHelper, IMapper mapper)
+        public TeacherController(ITeacherDbHelper teacherDbHelper, IAllocatedSubjectDbHelper allocatedSubjectDbHelper, IAllocatedClassRoomDbHelper allocatedClassRoomDbHelper, IMapper mapper)
         {
             this.teacherDbHelper = teacherDbHelper;
             this.mapper = mapper;
             this.allocatedSubjectDbHelper = allocatedSubjectDbHelper;
+            this.allocatedClassRoomDbHelper = allocatedClassRoomDbHelper;
         }
 
         [HttpPost]
@@ -140,6 +142,48 @@ namespace student_mgt_app.Controllers
         public async Task<IActionResult> DeallocateSubject([FromRoute] Guid id)
         {
             var deleted = await allocatedSubjectDbHelper.DeleteAsync(id);
+
+            if (deleted == null)
+            {
+                return NotFound();
+            }
+
+            return Ok();
+        }
+
+
+        [HttpGet]
+        [Route("allocated-classrooms/{id:Guid}")]
+        public async Task<IActionResult> GetAllocatedClassRoomsByTeacherId([FromRoute] Guid id)
+        {
+            var classes = await allocatedClassRoomDbHelper.GetByTeacherIdAsync(id);
+
+            return Ok(mapper.Map<List<AllocatedClassRoomDto>>(classes));
+        }
+
+        [HttpPost]
+        [Route("allocated-classrooms")]
+        public async Task<IActionResult> AllocateClassRoom([FromBody] AllocatedClassRoomAddRequestDto requestDto)
+        {
+            var classRoom = mapper.Map<AllocatedClassRoom>(requestDto);
+
+            classRoom.CreatedDateTime = DateTime.UtcNow;
+
+            var result = await allocatedClassRoomDbHelper.CreateAsync(classRoom);
+
+            if (result == null)
+            {
+                return NoContent();
+            }
+
+            return Created("", "Success");
+        }
+
+        [HttpDelete]
+        [Route("allocated-classrooms/{id:Guid}")]
+        public async Task<IActionResult> DeallocateClassRoom([FromRoute] Guid id)
+        {
+            var deleted = await allocatedClassRoomDbHelper.DeleteAsync(id);
 
             if (deleted == null)
             {
