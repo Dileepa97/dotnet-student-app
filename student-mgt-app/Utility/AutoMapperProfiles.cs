@@ -35,6 +35,10 @@ namespace student_mgt_app.Utility
             CreateMap<AllocatedSubjectAddRequestDto, AllocatedSubject>().ReverseMap();
 
             CreateMap<AllocatedSubject, AllocatedSubjectDto>().ReverseMap();
+
+            CreateMap<AllocatedClassRoomAddRequestDto, AllocatedClassRoom>().ReverseMap();
+
+            CreateMap<AllocatedClassRoom, AllocatedClassRoomDto>().ReverseMap();
         }
     }
 }
