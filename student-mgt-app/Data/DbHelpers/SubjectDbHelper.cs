@@ -7,22 +7,22 @@ using System;
 
 namespace student_mgt_app.Data.DbHelpers
 {
-    public class ClassRoomDbHelper : IClassRoomDbHelper
+    public class SubjectDbHelper: ISubjectDbHelper
     {
         private readonly string connectionString;
 
-        public ClassRoomDbHelper(IConfiguration configuration)
+        public SubjectDbHelper(IConfiguration configuration)
         {
             this.connectionString = configuration.GetConnectionString("StudentAppDbConnectionString");
         }
 
-        public async Task<ClassRoom> GetByIdAsync(Guid id)
+        public async Task<Subject> GetByIdAsync(Guid id)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 await connection.OpenAsync();
 
-                using (SqlCommand command = new SqlCommand("SELECT * FROM ClassRoom WHERE Id = @Id", connection))
+                using (SqlCommand command = new SqlCommand("SELECT * FROM Subject WHERE Id = @Id", connection))
                 {
                     command.Parameters.AddWithValue("@Id", id);
 
@@ -30,7 +30,7 @@ namespace student_mgt_app.Data.DbHelpers
                     {
                         if (reader.Read())
                         {
-                            return new ClassRoom
+                            return new Subject
                             {
                                 Id = (Guid)reader["Id"],
                                 Name = reader["Name"].ToString(),
@@ -46,20 +46,20 @@ namespace student_mgt_app.Data.DbHelpers
             return null;
         }
 
-        public async Task<IEnumerable<ClassRoom>> GetAllAsync()
+        public async Task<IEnumerable<Subject>> GetAllAsync()
         {
-            List<ClassRoom> classRooms = new List<ClassRoom>();
+            List<Subject> subjects = new List<Subject>();
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 await connection.OpenAsync();
 
-                using (SqlCommand command = new SqlCommand("SELECT * FROM ClassRoom", connection))
+                using (SqlCommand command = new SqlCommand("SELECT * FROM Subject", connection))
                 using (SqlDataReader reader = await command.ExecuteReaderAsync())
                 {
                     while (reader.Read())
                     {
-                        classRooms.Add(new ClassRoom
+                        subjects.Add(new Subject
                         {
                             Id = (Guid)reader["Id"],
                             Name = reader["Name"].ToString(),
@@ -71,21 +71,21 @@ namespace student_mgt_app.Data.DbHelpers
                 }
             }
 
-            return classRooms;
+            return subjects;
         }
 
-        public async Task<string> CreateAsync(ClassRoom classRoom)
+        public async Task<string> CreateAsync(Subject subject)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 await connection.OpenAsync();
 
-                using (SqlCommand command = new SqlCommand("INSERT INTO ClassRoom (Name, CreatedDateTime, LastUpdatedDateTime, IsActive) VALUES (@Name, @CreatedDateTime, @LastUpdatedDateTime, @IsActive)", connection))
+                using (SqlCommand command = new SqlCommand("INSERT INTO Subject (Name, CreatedDateTime, LastUpdatedDateTime, IsActive) VALUES (@Name, @CreatedDateTime, @LastUpdatedDateTime, @IsActive); SELECT SCOPE_IDENTITY()", connection))
                 {
-                    command.Parameters.AddWithValue("@Name", classRoom.Name);
-                    command.Parameters.AddWithValue("@CreatedDateTime", classRoom.CreatedDateTime);
-                    command.Parameters.AddWithValue("@LastUpdatedDateTime", classRoom.LastUpdatedDateTime);
-                    command.Parameters.AddWithValue("@IsActive", classRoom.IsActive);
+                    command.Parameters.AddWithValue("@Name", subject.Name);
+                    command.Parameters.AddWithValue("@CreatedDateTime", subject.CreatedDateTime);
+                    command.Parameters.AddWithValue("@LastUpdatedDateTime", subject.LastUpdatedDateTime);
+                    command.Parameters.AddWithValue("@IsActive", subject.IsActive);
 
                     object result = await command.ExecuteScalarAsync();
 
@@ -99,18 +99,18 @@ namespace student_mgt_app.Data.DbHelpers
             return null;
         }
 
-        public async Task<string> UpdateAsync(ClassRoom classRoom)
+        public async Task<string> UpdateAsync(Subject subject)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 await connection.OpenAsync();
 
-                using (SqlCommand command = new SqlCommand("UPDATE ClassRoom SET Name = @Name, LastUpdatedDateTime = @LastUpdatedDateTime, IsActive = @IsActive WHERE Id = @Id", connection))
+                using (SqlCommand command = new SqlCommand("UPDATE Subject SET Name = @Name, LastUpdatedDateTime = @LastUpdatedDateTime, IsActive = @IsActive WHERE Id = @Id", connection))
                 {
-                    command.Parameters.AddWithValue("@Id", classRoom.Id);
-                    command.Parameters.AddWithValue("@Name", classRoom.Name);
-                    command.Parameters.AddWithValue("@LastUpdatedDateTime", classRoom.LastUpdatedDateTime);
-                    command.Parameters.AddWithValue("@IsActive", classRoom.IsActive);
+                    command.Parameters.AddWithValue("@Id", subject.Id);
+                    command.Parameters.AddWithValue("@Name", subject.Name);
+                    command.Parameters.AddWithValue("@LastUpdatedDateTime", subject.LastUpdatedDateTime);
+                    command.Parameters.AddWithValue("@IsActive", subject.IsActive);
 
                     int rowsAffected = await command.ExecuteNonQueryAsync();
 
@@ -130,7 +130,7 @@ namespace student_mgt_app.Data.DbHelpers
             {
                 await connection.OpenAsync();
 
-                using (SqlCommand command = new SqlCommand("DELETE FROM ClassRoom WHERE Id = @Id", connection))
+                using (SqlCommand command = new SqlCommand("DELETE FROM Subject WHERE Id = @Id", connection))
                 {
                     command.Parameters.AddWithValue("@Id", id);
 
