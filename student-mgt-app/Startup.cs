@@ -8,6 +8,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using student_mgt_app.Data;
+using student_mgt_app.Data.DbHelpers;
+using student_mgt_app.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -45,6 +47,12 @@ namespace student_mgt_app
             //Migration runner
             MigrationRunner migrationRunner = new MigrationRunner(configuration);
             migrationRunner.RunMigrations();
+
+            // Automapper
+            services.AddAutoMapper(typeof(AutoMapperProfiles));
+
+            // services
+            services.AddScoped<ITeacherDbHelper, TeacherDbHelper>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

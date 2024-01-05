@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
-namespace student_mgt_app.Models.Domain
+namespace student_mgt_app.Models.DTO
 {
-
-    public class Teacher
+    public class TeacherDto
     {
         public Guid Id { get; set; }
 
