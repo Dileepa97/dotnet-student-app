@@ -1,20 +1,13 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using student_mgt_app.Data;
 using student_mgt_app.Data.DbHelpers;
 using student_mgt_app.Utility;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace student_mgt_app
 {
@@ -54,6 +47,7 @@ namespace student_mgt_app
             // services
             services.AddScoped<ITeacherDbHelper, TeacherDbHelper>();
             services.AddScoped<IClassRoomDbHelper, ClassRoomDbHelper>();
+            services.AddScoped<ISubjectDbHelper, SubjectDbHelper>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
