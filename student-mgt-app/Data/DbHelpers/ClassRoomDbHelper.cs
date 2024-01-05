@@ -112,9 +112,9 @@ namespace student_mgt_app.Data.DbHelpers
                     command.Parameters.AddWithValue("@LastUpdatedDateTime", classRoom.LastUpdatedDateTime);
                     command.Parameters.AddWithValue("@IsActive", classRoom.IsActive);
 
-                    object result = await command.ExecuteScalarAsync();
+                    int rowsAffected = await command.ExecuteNonQueryAsync();
 
-                    if (result != null)
+                    if (rowsAffected > 0)
                     {
                         return "Success";
                     }
@@ -134,9 +134,9 @@ namespace student_mgt_app.Data.DbHelpers
                 {
                     command.Parameters.AddWithValue("@Id", id);
 
-                    object result = await command.ExecuteScalarAsync();
+                    int rowsAffected = await command.ExecuteNonQueryAsync();
 
-                    if (result != null)
+                    if (rowsAffected > 0)
                     {
                         return "Deleted";
                     }
