@@ -40,15 +40,20 @@ namespace student_mgt_app.Data.DbHelpers
             return null;
         }
 
-        public async Task<IEnumerable<AllocatedClassRoom>> GetByTeacherIdAsync(Guid id)
+        public async Task<IEnumerable<ClassRoom>> GetByTeacherIdAsync(Guid id)
         {
-            List<AllocatedClassRoom> classRooms = new List<AllocatedClassRoom>();
+            List<ClassRoom> classRooms = new List<ClassRoom>();
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 await connection.OpenAsync();
 
-                using (SqlCommand command = new SqlCommand("SELECT * FROM AllocatedClassRoom WHERE TeacherId = @Id", connection))
+                string query = @"
+                        SELECT c.*
+                        FROM ClassRoom c
+                        INNER JOIN (SELECT * FROM AllocatedClassRoom WHERE TeacherId = @Id) a ON c.Id = a.ClassRoomId";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@Id", id);
 
@@ -56,12 +61,13 @@ namespace student_mgt_app.Data.DbHelpers
                     {
                         while (reader.Read())
                         {
-                            classRooms.Add(new AllocatedClassRoom
+                            classRooms.Add(new ClassRoom
                             {
                                 Id = (Guid)reader["Id"],
-                                TeacherId = (Guid)reader["TeacherId"],
-                                ClassRoomId = (Guid)reader["ClassRoomId"],
-                                CreatedDateTime = (DateTime)reader["CreatedDateTime"]
+                                Name = reader["Name"].ToString(),
+                                CreatedDateTime = (DateTime)reader["CreatedDateTime"],
+                                LastUpdatedDateTime = (DateTime)reader["LastUpdatedDateTime"],
+                                IsActive = (bool)reader["IsActive"]
                             });
                         }
                     }
@@ -71,15 +77,56 @@ namespace student_mgt_app.Data.DbHelpers
             return classRooms;
         }
 
-        public async Task<string> DeleteAsync(Guid id)
+
+        public async Task<IEnumerable<ClassRoom>> GetNotAllocatedClassRoomsByTeacherIdAsync(Guid id)
+        {
+            List<ClassRoom> classRooms = new List<ClassRoom>();
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+
+                string query = @"
+                        SELECT c.*
+                        FROM ClassRoom c
+                        LEFT JOIN (SELECT * FROM AllocatedClassRoom WHERE TeacherId = @Id) a ON c.Id = a.ClassRoomId
+                        WHERE a.Id IS NULL";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+
+                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    {
+                        while (reader.Read())
+                        {
+                            classRooms.Add(new ClassRoom
+                            {
+                                Id = (Guid)reader["Id"],
+                                Name = reader["Name"].ToString(),
+                                CreatedDateTime = (DateTime)reader["CreatedDateTime"],
+                                LastUpdatedDateTime = (DateTime)reader["LastUpdatedDateTime"],
+                                IsActive = (bool)reader["IsActive"]
+                            });
+                        }
+                    }
+                }
+            }
+
+            return classRooms;
+        }
+
+
+        public async Task<string> DeleteByTeacherIdAndClassRoomIdAsync(Guid teacherId, Guid classRoomId)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 await connection.OpenAsync();
 
-                using (SqlCommand command = new SqlCommand("DELETE FROM AllocatedClassRoom WHERE Id = @Id", connection))
+                using (SqlCommand command = new SqlCommand("DELETE FROM AllocatedClassRoom WHERE TeacherId = @TeacherId AND ClassRoomId = @ClassRoomId", connection))
                 {
-                    command.Parameters.AddWithValue("@Id", id);
+                    command.Parameters.AddWithValue("@TeacherId", teacherId);
+                    command.Parameters.AddWithValue("@ClassRoomId", classRoomId);
 
                     int rowsAffected = await command.ExecuteNonQueryAsync();
 

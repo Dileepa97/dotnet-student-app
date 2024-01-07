@@ -27,5 +27,7 @@ namespace student_mgt_app.Models.DTO
         public DateTime LastUpdatedDateTime { get; set; }
 
         public bool IsActive { get; set; }
+
+        public ClassRoomDto ClassRoom { get; set; }
     }
 }

@@ -9,8 +9,10 @@ namespace student_mgt_app.Data.DbHelpers
     {
         Task<string> CreateAsync(AllocatedClassRoom allocated);
 
-        Task<IEnumerable<AllocatedClassRoom>> GetByTeacherIdAsync(Guid id);
+        Task<IEnumerable<ClassRoom>> GetByTeacherIdAsync(Guid id);
 
-        Task<string> DeleteAsync(Guid id);
+        Task<IEnumerable<ClassRoom>> GetNotAllocatedClassRoomsByTeacherIdAsync(Guid id);
+
+        Task<string> DeleteByTeacherIdAndClassRoomIdAsync(Guid teacherId, Guid classRoomId);
     }
 }

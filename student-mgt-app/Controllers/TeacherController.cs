@@ -109,6 +109,7 @@ namespace student_mgt_app.Controllers
             return Ok();
         }
 
+        // Allocate Subject
 
         [HttpGet]
         [Route("allocated-subjects/{id:Guid}")]
@@ -116,11 +117,20 @@ namespace student_mgt_app.Controllers
         {
             var subjects = await allocatedSubjectDbHelper.GetByTeacherIdAsync(id);
 
-            return Ok(mapper.Map<List<AllocatedSubjectDto>>(subjects));
+            return Ok(mapper.Map<List<SubjectDto>>(subjects));
+        }
+
+        [HttpGet]
+        [Route("not-allocated-subjects/{id:Guid}")]
+        public async Task<IActionResult> GetNotAllocatedSubjectsByTeacherId([FromRoute] Guid id)
+        {
+            var subjects = await allocatedSubjectDbHelper.GetNotAllocatedSubjectsByTeacherIdAsync(id);
+
+            return Ok(mapper.Map<List<SubjectDto>>(subjects));
         }
 
         [HttpPost]
-        [Route("allocated-subjects")]
+        [Route("allocate-subject")]
         public async Task<IActionResult> AllocateSubject([FromBody] AllocatedSubjectAddRequestDto requestDto)
         {
             var subject = mapper.Map<AllocatedSubject>(requestDto);
@@ -138,10 +148,10 @@ namespace student_mgt_app.Controllers
         }
 
         [HttpDelete]
-        [Route("allocated-subjects/{id:Guid}")]
-        public async Task<IActionResult> DeallocateSubject([FromRoute] Guid id)
+        [Route("{teacherId:Guid}/deallocate-subject/{subjectId:Guid}")]
+        public async Task<IActionResult> DeallocateSubject([FromRoute] Guid teacherId, [FromRoute] Guid subjectId)
         {
-            var deleted = await allocatedSubjectDbHelper.DeleteAsync(id);
+            var deleted = await allocatedSubjectDbHelper.DeleteByTeacherIdAndSubjectIdAsync(teacherId, subjectId);
 
             if (deleted == null)
             {
@@ -152,17 +162,28 @@ namespace student_mgt_app.Controllers
         }
 
 
+        // Allocate Class Room
+
         [HttpGet]
         [Route("allocated-classrooms/{id:Guid}")]
         public async Task<IActionResult> GetAllocatedClassRoomsByTeacherId([FromRoute] Guid id)
         {
             var classes = await allocatedClassRoomDbHelper.GetByTeacherIdAsync(id);
 
-            return Ok(mapper.Map<List<AllocatedClassRoomDto>>(classes));
+            return Ok(mapper.Map<List<ClassRoomDto>>(classes));
+        }
+
+        [HttpGet]
+        [Route("not-allocated-classrooms/{id:Guid}")]
+        public async Task<IActionResult> GetNotAllocatedClassRoomsByTeacherId([FromRoute] Guid id)
+        {
+            var subjects = await allocatedClassRoomDbHelper.GetNotAllocatedClassRoomsByTeacherIdAsync(id);
+
+            return Ok(mapper.Map<List<ClassRoomDto>>(subjects));
         }
 
         [HttpPost]
-        [Route("allocated-classrooms")]
+        [Route("allocate-classroom")]
         public async Task<IActionResult> AllocateClassRoom([FromBody] AllocatedClassRoomAddRequestDto requestDto)
         {
             var classRoom = mapper.Map<AllocatedClassRoom>(requestDto);
@@ -180,10 +201,10 @@ namespace student_mgt_app.Controllers
         }
 
         [HttpDelete]
-        [Route("allocated-classrooms/{id:Guid}")]
-        public async Task<IActionResult> DeallocateClassRoom([FromRoute] Guid id)
+        [Route("{teacherId:Guid}/deallocate-classroom/{classRoomId:Guid}")]
+        public async Task<IActionResult> DeallocateClassRoom([FromRoute] Guid teacherId, [FromRoute] Guid classRoomId)
         {
-            var deleted = await allocatedClassRoomDbHelper.DeleteAsync(id);
+            var deleted = await allocatedClassRoomDbHelper.DeleteByTeacherIdAndClassRoomIdAsync(teacherId, classRoomId);
 
             if (deleted == null)
             {

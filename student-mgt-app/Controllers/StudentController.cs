@@ -104,6 +104,21 @@ namespace student_mgt_app.Controllers
 
             return Ok();
         }
+
+
+        [HttpGet]
+        [Route("report-details/{classRoomId:Guid}")]
+        public async Task<IActionResult> GetStudentReportDataByClassRoomId([FromRoute] Guid classRoomId)
+        {
+            var data = await studentDbHelper.GetStudentReportDataAsync(classRoomId);
+
+            if (data == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(data);
+        }
     }
 
 }

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using student_mgt_app.Data;
 using student_mgt_app.Data.DbHelpers;
+using student_mgt_app.Middleware;
 using student_mgt_app.Utility;
 using System.IO;
 
@@ -41,6 +42,18 @@ namespace student_mgt_app
             MigrationRunner migrationRunner = new MigrationRunner(configuration);
             migrationRunner.RunMigrations();
 
+            // Cors
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll",
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                               .AllowAnyMethod()
+                               .AllowAnyHeader();
+                    });
+            });
+
             // Automapper
             services.AddAutoMapper(typeof(AutoMapperProfiles));
 
@@ -66,6 +79,10 @@ namespace student_mgt_app
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Student App API V1");
                 });
             }
+
+            app.UseCors("AllowAll");
+
+            app.UseMiddleware<ExceptionHandlerMiddleware>();
 
             app.UseHttpsRedirection();
 

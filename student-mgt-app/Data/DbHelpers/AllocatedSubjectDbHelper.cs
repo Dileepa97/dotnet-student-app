@@ -40,15 +40,20 @@ namespace student_mgt_app.Data.DbHelpers
             return null;
         }
 
-        public async Task<IEnumerable<AllocatedSubject>> GetByTeacherIdAsync(Guid id)
+        public async Task<IEnumerable<Subject>> GetByTeacherIdAsync(Guid id)
         {
-            List<AllocatedSubject> subjects = new List<AllocatedSubject>();
+            List<Subject> subjects = new List<Subject>();
 
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 await connection.OpenAsync();
 
-                using (SqlCommand command = new SqlCommand("SELECT * FROM AllocatedSubject WHERE TeacherId = @Id", connection))
+                string query = @"
+                        SELECT s.*
+                        FROM Subject s
+                        INNER JOIN (SELECT * FROM AllocatedSubject WHERE TeacherId = @Id) a ON s.Id = a.SubjectId";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@Id", id);
 
@@ -56,12 +61,13 @@ namespace student_mgt_app.Data.DbHelpers
                     {
                         while (reader.Read())
                         {
-                            subjects.Add(new AllocatedSubject
+                            subjects.Add(new Subject
                             {
                                 Id = (Guid)reader["Id"],
-                                TeacherId = (Guid)reader["TeacherId"],
-                                SubjectId = (Guid)reader["SubjectId"],
-                                CreatedDateTime = (DateTime)reader["CreatedDateTime"]
+                                Name = reader["Name"].ToString(),
+                                CreatedDateTime = (DateTime)reader["CreatedDateTime"],
+                                LastUpdatedDateTime = (DateTime)reader["LastUpdatedDateTime"],
+                                IsActive = (bool)reader["IsActive"]
                             });
                         }
                     }
@@ -71,15 +77,54 @@ namespace student_mgt_app.Data.DbHelpers
             return subjects;
         }
 
-        public async Task<string> DeleteAsync(Guid id)
+        public async Task<IEnumerable<Subject>> GetNotAllocatedSubjectsByTeacherIdAsync(Guid id)
+        {
+            List<Subject> subjects = new List<Subject>();
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+
+                string query = @"
+                        SELECT s.*
+                        FROM Subject s
+                        LEFT JOIN (SELECT * FROM AllocatedSubject WHERE TeacherId = @Id) a ON s.Id = a.SubjectId
+                        WHERE a.Id IS NULL";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+
+                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    {
+                        while (reader.Read())
+                        {
+                            subjects.Add(new Subject
+                            {
+                                Id = (Guid)reader["Id"],
+                                Name = reader["Name"].ToString(),
+                                CreatedDateTime = (DateTime)reader["CreatedDateTime"],
+                                LastUpdatedDateTime = (DateTime)reader["LastUpdatedDateTime"],
+                                IsActive = (bool)reader["IsActive"]
+                            });
+                        }
+                    }
+                }
+            }
+
+            return subjects;
+        }
+
+        public async Task<string> DeleteByTeacherIdAndSubjectIdAsync(Guid teacherId, Guid subjectId)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 await connection.OpenAsync();
 
-                using (SqlCommand command = new SqlCommand("DELETE FROM AllocatedSubject WHERE Id = @Id", connection))
+                using (SqlCommand command = new SqlCommand("DELETE FROM AllocatedSubject WHERE TeacherId = @TeacherId AND SubjectId = @SubjectId", connection))
                 {
-                    command.Parameters.AddWithValue("@Id", id);
+                    command.Parameters.AddWithValue("@TeacherId", teacherId);
+                    command.Parameters.AddWithValue("@SubjectId", subjectId);
 
                     int rowsAffected = await command.ExecuteNonQueryAsync();
 
