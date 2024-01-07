@@ -16,5 +16,7 @@ namespace student_mgt_app.Data.DbHelpers
         Task<string> UpdateAsync(Student student);
 
         Task<string> DeleteAsync(Guid id);
+
+        Task<IEnumerable<Object>> GetStudentReportDataAsync(Guid id);
     }
 }

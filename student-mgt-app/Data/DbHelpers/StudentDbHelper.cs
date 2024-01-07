@@ -36,7 +36,7 @@ namespace student_mgt_app.Data.DbHelpers
                     {
                         if (reader.Read())
                         {
-                            Student student =  new Student
+                            Student student = new Student
                             {
                                 Id = (Guid)reader["Id"],
                                 FirstName = reader["FirstName"].ToString(),
@@ -227,6 +227,60 @@ namespace student_mgt_app.Data.DbHelpers
             }
 
             return null;
+        }
+
+
+        //Get student report data
+        public async Task<IEnumerable<Object>> GetStudentReportDataAsync(Guid id)
+        {
+            List<Object> data = new List<Object>();
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+
+                string query = @"SELECT TeacherId, FirstName, LastName, SubjectId, s.Name
+                                FROM Subject s JOIN
+                                (
+	                                SELECT TeacherId, FirstName, LastName, SubjectId
+	                                FROM Teacher t JOIN
+	                                (
+		                                SELECT TeacherId, SubjectId
+		                                FROM AllocatedSubject
+		                                WHERE TeacherId IN
+		                                (
+			                                SELECT TeacherId
+			                                FROM AllocatedClassRoom
+			                                WHERE ClassRoomId = @Id
+		                                )
+	                                ) AsAc ON t.Id = AsAc.TeacherId
+                                ) AsAcT ON s.Id = AsAcT.SubjectId;";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+
+                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    {
+                        while (reader.Read())
+                        {
+                            var reportData = new 
+                            {
+                                TeacherId = (Guid)reader["TeacherId"],
+                                TeacherFirstName = reader["FirstName"].ToString(),
+                                TeacherLastName = reader["LastName"].ToString(),
+                                SubjectId = (Guid)reader["SubjectId"],
+                                SubjectName = reader["Name"].ToString()
+                            };
+
+
+                            data.Add(reportData);
+                        }
+                    }
+                }
+
+                return data;
+            }
         }
     }
 
