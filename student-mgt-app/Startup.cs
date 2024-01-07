@@ -41,6 +41,18 @@ namespace student_mgt_app
             MigrationRunner migrationRunner = new MigrationRunner(configuration);
             migrationRunner.RunMigrations();
 
+            // Cors
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll",
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                               .AllowAnyMethod()
+                               .AllowAnyHeader();
+                    });
+            });
+
             // Automapper
             services.AddAutoMapper(typeof(AutoMapperProfiles));
 
@@ -66,6 +78,8 @@ namespace student_mgt_app
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Student App API V1");
                 });
             }
+
+            app.UseCors("AllowAll");
 
             app.UseHttpsRedirection();
 
