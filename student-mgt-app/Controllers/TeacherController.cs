@@ -116,7 +116,16 @@ namespace student_mgt_app.Controllers
         {
             var subjects = await allocatedSubjectDbHelper.GetByTeacherIdAsync(id);
 
-            return Ok(mapper.Map<List<AllocatedSubjectDto>>(subjects));
+            return Ok(mapper.Map<List<SubjectDto>>(subjects));
+        }
+
+        [HttpGet]
+        [Route("not-allocated-subjects/{id:Guid}")]
+        public async Task<IActionResult> GetNotAllocatedSubjectsByTeacherId([FromRoute] Guid id)
+        {
+            var subjects = await allocatedSubjectDbHelper.GetNotAllocatedSubjectsByTeacherIdAsync(id);
+
+            return Ok(mapper.Map<List<SubjectDto>>(subjects));
         }
 
         [HttpPost]
@@ -138,10 +147,10 @@ namespace student_mgt_app.Controllers
         }
 
         [HttpDelete]
-        [Route("allocated-subjects/{id:Guid}")]
-        public async Task<IActionResult> DeallocateSubject([FromRoute] Guid id)
+        [Route("{teacherId:Guid}/deallocate-subject/{subjectId:Guid}")]
+        public async Task<IActionResult> DeallocateSubject([FromRoute] Guid teacherId, [FromRoute] Guid subjectId)
         {
-            var deleted = await allocatedSubjectDbHelper.DeleteAsync(id);
+            var deleted = await allocatedSubjectDbHelper.DeleteByTeacherIdAndSubjectIdAsync(teacherId, subjectId);
 
             if (deleted == null)
             {
