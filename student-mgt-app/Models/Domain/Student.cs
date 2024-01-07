@@ -18,6 +18,8 @@ namespace student_mgt_app.Models.Domain
 
         public DateTime DOB { get; set; }
 
+        public int Age { get; set; }
+
         public Guid ClassRoomId { get; set; }
 
         public DateTime CreatedDateTime { get; set; }
@@ -25,6 +27,8 @@ namespace student_mgt_app.Models.Domain
         public DateTime LastUpdatedDateTime { get; set; }
 
         public bool IsActive { get; set; }
+
+        public ClassRoom ClassRoom { get; set; }
 
     }
 }

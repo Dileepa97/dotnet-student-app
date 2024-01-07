@@ -22,15 +22,21 @@ namespace student_mgt_app.Data.DbHelpers
             {
                 await connection.OpenAsync();
 
-                using (SqlCommand command = new SqlCommand("SELECT * FROM Student WHERE Id = @Id", connection))
+                string query = @"
+                        SELECT s.*, c.*
+                        FROM Student s
+                        INNER JOIN ClassRoom c ON s.ClassRoomId = c.Id
+                        WHERE s.Id = @StudentId;";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@Id", id);
+                    command.Parameters.AddWithValue("@StudentId", id);
 
                     using (SqlDataReader reader = await command.ExecuteReaderAsync())
                     {
                         if (reader.Read())
                         {
-                            return new Student
+                            Student student =  new Student
                             {
                                 Id = (Guid)reader["Id"],
                                 FirstName = reader["FirstName"].ToString(),
@@ -44,6 +50,30 @@ namespace student_mgt_app.Data.DbHelpers
                                 LastUpdatedDateTime = (DateTime)reader["LastUpdatedDateTime"],
                                 IsActive = (bool)reader["IsActive"]
                             };
+
+                            ClassRoom classRoom = new ClassRoom
+                            {
+                                Id = (Guid)reader["Id"],
+                                Name = reader["Name"].ToString(),
+                                CreatedDateTime = (DateTime)reader["CreatedDateTime"],
+                                LastUpdatedDateTime = (DateTime)reader["LastUpdatedDateTime"],
+                                IsActive = (bool)reader["IsActive"]
+                            };
+
+                            student.ClassRoom = classRoom;
+
+                            // Calculate age
+                            DateTime currentDate = DateTime.UtcNow;
+                            int age = currentDate.Year - student.DOB.Year;
+
+                            if (currentDate < student.DOB.AddYears(age))
+                            {
+                                age--;
+                            }
+
+                            student.Age = age;
+
+                            return student;
                         }
                     }
                 }
@@ -60,12 +90,17 @@ namespace student_mgt_app.Data.DbHelpers
             {
                 await connection.OpenAsync();
 
-                using (SqlCommand command = new SqlCommand("SELECT * FROM Student", connection))
+                string query = @"
+                        SELECT s.*, c.*
+                        FROM Student s
+                        LEFT JOIN ClassRoom c ON s.ClassRoomId = c.Id";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
                 using (SqlDataReader reader = await command.ExecuteReaderAsync())
                 {
                     while (reader.Read())
                     {
-                        students.Add(new Student
+                        Student student = new Student
                         {
                             Id = (Guid)reader["Id"],
                             FirstName = reader["FirstName"].ToString(),
@@ -78,7 +113,31 @@ namespace student_mgt_app.Data.DbHelpers
                             CreatedDateTime = (DateTime)reader["CreatedDateTime"],
                             LastUpdatedDateTime = (DateTime)reader["LastUpdatedDateTime"],
                             IsActive = (bool)reader["IsActive"]
-                        });
+                        };
+
+                        ClassRoom classRoom = new ClassRoom
+                        {
+                            Id = (Guid)reader["Id"],
+                            Name = reader["Name"].ToString(),
+                            CreatedDateTime = (DateTime)reader["CreatedDateTime"],
+                            LastUpdatedDateTime = (DateTime)reader["LastUpdatedDateTime"],
+                            IsActive = (bool)reader["IsActive"]
+                        };
+
+                        student.ClassRoom = classRoom;
+
+                        // Calculate age
+                        DateTime currentDate = DateTime.UtcNow;
+                        int age = currentDate.Year - student.DOB.Year;
+
+                        if (currentDate < student.DOB.AddYears(age))
+                        {
+                            age--;
+                        }
+
+                        student.Age = age;
+
+                        students.Add(student);
                     }
                 }
             }
